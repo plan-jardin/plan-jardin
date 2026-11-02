@@ -1,0 +1,16 @@
+{
+  "name": "google-drive-appdata",
+  "version": "1.0.0",
+  "description": "Expose a user's Google Drive appDataFolder as a single auto-saving JavaScript object.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./config": "./config.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "example": "npx --yes http-server . -p 8080 -c-1"
+  },
+  "license": "MIT"
+}

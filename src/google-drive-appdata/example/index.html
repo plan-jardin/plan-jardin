@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Google Drive appData example</title>
+  </head>
+  <body>
+    <button id="connect">Sign in with Google</button>
+    <button id="increment" disabled>Increment counter</button>
+    <button id="signout" disabled>Sign out</button>
+    <p>Status: <span id="status">disconnected</span></p>
+    <pre id="data"></pre>
+
+    <script type="module">
+      import config from '../config.js';
+      import { connectAppData } from '../src/index.js';
+
+      let store;
+      const $ = (id) => document.getElementById(id);
+      const render = () => {
+        $('status').textContent = store ? store.status : 'disconnected';
+        $('data').textContent = store ? JSON.stringify(store.data, null, 2) : '';
+      };
+
+      // Must run inside a click handler so the OAuth popup is not blocked.
+      $('connect').onclick = async () => {
+        try {
+          store = await connectAppData({ ...config, defaults: { counter: 0 } });
+          for (const ev of ['saved', 'error']) store.addEventListener(ev, render);
+          $('increment').disabled = $('signout').disabled = false;
+          $('connect').disabled = true;
+          render();
+        } catch (err) {
+          $('status').textContent = `error: ${err.message}`;
+        }
+      };
+
+      $('increment').onclick = () => {
+        store.data.counter++;
+        (store.data.history ??= []).push(new Date().toISOString());
+        render();
+      };
+
+      $('signout').onclick = async () => {
+        await store.signOut();
+        store = null;
+        $('increment').disabled = $('signout').disabled = true;
+        $('connect').disabled = false;
+        render();
+      };
+    </script>
+  </body>
+</html>
